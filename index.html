@@ -124,22 +124,41 @@
   }
   .identity-card .field-group { margin-bottom: 16px; }
   .identity-card .field-group:last-child { margin-bottom: 0; }
-  .weighin-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .weighin-grid { display: flex; flex-direction: column; gap: 10px; }
   .weighin-card {
+    display: grid; grid-template-columns: 36px 1fr 1fr; align-items: stretch;
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 16px;
+    border-radius: 10px; overflow: hidden; transition: border-color 0.2s;
   }
   .weighin-card:focus-within { border-color: var(--border-light); }
-  .weighin-day {
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px;
+  .weighin-num {
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface2); border-right: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim);
+    min-height: 64px;
   }
-  .weighin-card input {
-    background: transparent; border: none; border-bottom: 1px solid var(--border);
-    border-radius: 0; padding: 4px 0; font-size: 22px; color: var(--text); width: 100%; box-shadow: none;
+  .weighin-day-box {
+    display: flex; flex-direction: column; padding: 10px 14px;
+    border-right: 1px solid var(--border);
   }
-  .weighin-card input:focus { border-color: var(--accent); background: transparent; box-shadow: none; }
-  .weighin-unit { font-size: 11px; color: var(--text-dim); margin-top: 6px; font-family: 'DM Mono', monospace; }
+  .weighin-box-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+    color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;
+  }
+  .weighin-day-box select {
+    background: transparent; border: none; border-radius: 0; padding: 0;
+    font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text);
+    width: 100%; box-shadow: none; background-image: none; outline: none;
+  }
+  .weighin-day-box select:focus { box-shadow: none; border: none; background: transparent; }
+  .weighin-weight-box { display: flex; flex-direction: column; padding: 10px 14px; }
+  .weighin-card input[type="number"] {
+    background: transparent; border: none; border-radius: 0; padding: 0;
+    font-family: 'DM Mono', monospace; font-size: 18px; color: var(--text);
+    width: 100%; box-shadow: none; outline: none;
+  }
+  .weighin-card input[type="number"]:focus { background: transparent; box-shadow: none; border: none; }
+  .weighin-unit { font-size: 9px; color: var(--text-dim); font-family: 'DM Mono', monospace; letter-spacing: 0.1em; margin-top: 3px; }
   .rating-wrap { display: flex; align-items: center; gap: 16px; }
   .rating-track { flex: 1; }
   input[type="range"] {
@@ -359,34 +378,52 @@
       <label class="field-label">Weigh-Ins (lbs)</label>
       <div class="weighin-grid">
         <div class="weighin-card">
-          <div class="weighin-day">Weigh-In 1</div>
-          <select name="weight_1_day" style="background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:4px 0;font-size:12px;color:var(--text-dim);width:100%;margin-bottom:8px;box-shadow:none;">
-            <option value="" disabled selected>Day</option>
-            <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-            <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-          </select>
-          <input type="number" name="weight_1" placeholder="—" step="0.1">
-          <div class="weighin-unit">lbs</div>
+          <div class="weighin-num">1</div>
+          <div class="weighin-day-box">
+            <div class="weighin-box-label">Day</div>
+            <select name="weight_1_day">
+              <option value="" disabled selected>—</option>
+              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
+              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
+            </select>
+          </div>
+          <div class="weighin-weight-box">
+            <div class="weighin-box-label">Weight</div>
+            <input type="number" name="weight_1" placeholder="—" step="0.1">
+            <div class="weighin-unit">lbs</div>
+          </div>
         </div>
         <div class="weighin-card">
-          <div class="weighin-day">Weigh-In 2</div>
-          <select name="weight_2_day" style="background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:4px 0;font-size:12px;color:var(--text-dim);width:100%;margin-bottom:8px;box-shadow:none;">
-            <option value="" disabled selected>Day</option>
-            <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-            <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-          </select>
-          <input type="number" name="weight_2" placeholder="—" step="0.1">
-          <div class="weighin-unit">lbs</div>
+          <div class="weighin-num">2</div>
+          <div class="weighin-day-box">
+            <div class="weighin-box-label">Day</div>
+            <select name="weight_2_day">
+              <option value="" disabled selected>—</option>
+              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
+              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
+            </select>
+          </div>
+          <div class="weighin-weight-box">
+            <div class="weighin-box-label">Weight</div>
+            <input type="number" name="weight_2" placeholder="—" step="0.1">
+            <div class="weighin-unit">lbs</div>
+          </div>
         </div>
         <div class="weighin-card">
-          <div class="weighin-day">Weigh-In 3</div>
-          <select name="weight_3_day" style="background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:4px 0;font-size:12px;color:var(--text-dim);width:100%;margin-bottom:8px;box-shadow:none;">
-            <option value="" disabled selected>Day</option>
-            <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-            <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-          </select>
-          <input type="number" name="weight_3" placeholder="—" step="0.1">
-          <div class="weighin-unit">lbs</div>
+          <div class="weighin-num">3</div>
+          <div class="weighin-day-box">
+            <div class="weighin-box-label">Day</div>
+            <select name="weight_3_day">
+              <option value="" disabled selected>—</option>
+              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
+              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
+            </select>
+          </div>
+          <div class="weighin-weight-box">
+            <div class="weighin-box-label">Weight</div>
+            <input type="number" name="weight_3" placeholder="—" step="0.1">
+            <div class="weighin-unit">lbs</div>
+          </div>
         </div>
       </div>
     </div>
