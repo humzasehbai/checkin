@@ -371,7 +371,7 @@
     <div class="section-header">
       <div class="section-eyebrow">Step 02 — Body Weight</div>
       <h2 class="section-title">Three weigh-ins this week.</h2>
-      <p class="section-sub">Fasted, first thing in the morning. Pick any 3 days you tracked.</p>
+      <p class="section-sub">Fasted, first thing in the morning, after using the bathroom. Pick any 3 days you logged.</p>
     </div>
     <div class="field-group">
       <label class="field-label">Weigh-Ins (lbs)</label>
@@ -428,7 +428,7 @@
     </div>
     <div class="field-group">
       <label class="field-label">Body Composition Notes <span class="optional-tag">(optional)</span></label>
-      <span class="field-hint">Bloat, visible changes, clothes fitting differently, anything you noticed.</span>
+      <span class="field-hint">Bloat, visible changes, clothes fitting differently, anything worth noting.</span>
       <textarea name="body_notes" placeholder="e.g. Noticeably leaner in midsection, waist feels smaller. Scale was up but probably water…"></textarea>
     </div>
     <div class="nav-row">
@@ -462,7 +462,7 @@
     </div>
     <div class="field-group" style="margin-top:16px">
       <label class="field-label">Training Notes</label>
-      <span class="field-hint">What you trained, energy levels, PRs, anything skipped or worth flagging.</span>
+      <span class="field-hint">What you trained, energy levels, PRs, anything skipped or worth noting.</span>
       <textarea name="training_notes" placeholder="e.g. Hit upper/lower 4x, energy solid Mon–Thu but dragged Saturday. Bench up 5lbs. Skipped one session due to travel."></textarea>
     </div>
     <div class="nav-row">
@@ -538,26 +538,30 @@
       <textarea name="hydration_notes" placeholder="e.g. Dry mouth, dark urine, headaches, unusual thirst…" style="min-height:70px"></textarea>
     </div>
 
-    <div class="twin-col">
-      <div class="field-group">
-        <label class="field-label">Avg Sleep / Night</label>
-        <div class="metric-inline">
-          <input type="number" name="avg_sleep" placeholder="7.5" step="0.5">
-          <span class="metric-suffix">hrs</span>
+    <div class="field-group">
+      <label class="field-label">Avg Sleep / Night</label>
+      <div class="rating-wrap">
+        <div class="rating-track">
+          <input type="range" name="avg_sleep" id="sleep_slider" min="1" max="11" step="1" value="7" oninput="updateSleep(this.value)">
+          <div class="rating-labels">
+            <span class="rating-label-txt">1 hr</span>
+            <span class="rating-label-txt">10+ hrs</span>
+          </div>
         </div>
+        <div class="rating-val" id="sleep_val">7h</div>
       </div>
-      <div class="field-group">
-        <label class="field-label">Avg Daily Steps</label>
-        <div class="metric-inline">
-          <input type="number" name="avg_steps" placeholder="8000" step="100">
-          <span class="metric-suffix">steps</span>
-        </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Avg Daily Steps</label>
+      <div class="metric-inline">
+        <input type="number" name="avg_steps" placeholder="8000" step="100">
+        <span class="metric-suffix">steps</span>
       </div>
     </div>
 
     <div class="field-group">
       <label class="field-label">Sleep Notes <span class="optional-tag">(optional)</span></label>
-      <textarea name="sleep_notes" placeholder="e.g. Waking up at 3am, vivid dreams, feeling rested or groggy…" style="min-height:70px"></textarea>
+      <textarea name="sleep_notes" placeholder="e.g. Waking up at 3am, vivid dreams, rested or exhausted…" style="min-height:70px"></textarea>
     </div>
 
     <div class="nav-row">
@@ -640,7 +644,7 @@
     <div class="section-header">
       <div class="section-eyebrow">Step 06 — Wellbeing</div>
       <h2 class="section-title">How you're actually feeling.</h2>
-      <p class="section-sub">Quick ratings, with space to elaborate if anything's worth flagging.</p>
+      <p class="section-sub">Quick ratings, with space to add notes on anything worth mentioning.</p>
     </div>
 
     <div class="slider-card">
@@ -759,6 +763,12 @@
     document.getElementById(`sec-${from - 1}`).classList.add('active');
     updateProgress(from - 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateSleep(val) {
+    const display = val >= 11 ? '10+h' : val + 'h';
+    document.getElementById('sleep_val').textContent = display;
+    // Store actual value: 11 = "10+"
   }
 
   function updateRating(elId, val) {
