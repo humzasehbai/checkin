@@ -272,6 +272,49 @@
     .twin-col { grid-template-columns: 1fr; }
     .section-title { font-size: 22px; }
   }
+
+  /* CUSTOM DROPDOWN */
+  .cd-wrap { position: relative; user-select: none; }
+  .cd-trigger {
+    width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 13px 16px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .cd-trigger.placeholder { color: var(--text-dim); }
+  .cd-trigger.open { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); border-radius: 10px 10px 0 0; }
+  .cd-trigger svg { flex-shrink: 0; transition: transform 0.2s; color: var(--text-dim); }
+  .cd-trigger.open svg { transform: rotate(180deg); }
+  .cd-options {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+    background: var(--surface); border: 1.5px solid var(--accent);
+    border-top: none; border-radius: 0 0 10px 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1); overflow: hidden;
+    display: none;
+  }
+  .cd-options.open { display: block; animation: dropDown 0.15s ease; }
+  @keyframes dropDown { from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);} }
+  .cd-option {
+    padding: 13px 16px; font-family: 'DM Sans', sans-serif; font-size: 15px;
+    color: var(--text-muted); cursor: pointer; transition: all 0.1s;
+    border-bottom: 1px solid var(--border);
+  }
+  .cd-option:last-child { border-bottom: none; }
+  .cd-option:hover { background: var(--accent-dim); color: var(--text); }
+  .cd-option.selected { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+
+  /* COMPACT DROPDOWN (for weigh-in day boxes) */
+  .cd-wrap.compact .cd-trigger {
+    border: none; border-radius: 0; padding: 0; font-size: 14px;
+    font-weight: 500; box-shadow: none; background: transparent;
+  }
+  .cd-wrap.compact .cd-trigger.open { box-shadow: none; border-radius: 0; }
+  .cd-wrap.compact .cd-options {
+    border: 1.5px solid var(--accent); border-radius: 8px;
+    top: calc(100% + 4px); min-width: 100px;
+  }
+  .cd-wrap.compact .cd-option { padding: 10px 14px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -337,23 +380,35 @@
     <div class="identity-card">
       <div class="field-group">
         <label class="field-label">Who are you?</label>
-        <select name="name">
-          <option value="" disabled selected>Select your name</option>
-          <option value="Faisal Sehbai">Faisal Sehbai</option>
-          <option value="Jibran Shaikh">Jibran Shaikh</option>
-          <option value="Umair Mirza">Umair Mirza</option>
-        </select>
+        <input type="hidden" name="name" id="cd-name-val">
+        <div class="cd-wrap" id="cd-name">
+          <div class="cd-trigger placeholder" onclick="cdToggle('cd-name')">
+            <span class="cd-display">Select your name</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="cd-options">
+            <div class="cd-option" onclick="cdSelect('cd-name','Faisal Sehbai','cd-name-val')">Faisal Sehbai</div>
+            <div class="cd-option" onclick="cdSelect('cd-name','Jibran Shaikh','cd-name-val')">Jibran Shaikh</div>
+            <div class="cd-option" onclick="cdSelect('cd-name','Umair Mirza','cd-name-val')">Umair Mirza</div>
+          </div>
+        </div>
       </div>
       <div class="field-group" style="margin-bottom:0">
         <label class="field-label">How are you feeling overall this week?</label>
-        <select name="overall_vibe">
-          <option value="" disabled selected>Select one</option>
-          <option value="Great — everything is clicking">🟢  Great — everything is clicking</option>
-          <option value="Good — on track">🔵  Good — on track</option>
-          <option value="Average — some off days">🟡  Average — some off days</option>
-          <option value="Rough — struggling a bit">🟠  Rough — struggling a bit</option>
-          <option value="Bad — really hard week">🔴  Bad — really hard week</option>
-        </select>
+        <input type="hidden" name="overall_vibe" id="cd-vibe-val">
+        <div class="cd-wrap" id="cd-vibe">
+          <div class="cd-trigger placeholder" onclick="cdToggle('cd-vibe')">
+            <span class="cd-display">Select one</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="cd-options">
+            <div class="cd-option" onclick="cdSelect('cd-vibe','🟢  Great — everything is clicking','cd-vibe-val')">🟢  Great — everything is clicking</div>
+            <div class="cd-option" onclick="cdSelect('cd-vibe','🔵  Good — on track','cd-vibe-val')">🔵  Good — on track</div>
+            <div class="cd-option" onclick="cdSelect('cd-vibe','🟡  Average — some off days','cd-vibe-val')">🟡  Average — some off days</div>
+            <div class="cd-option" onclick="cdSelect('cd-vibe','🟠  Rough — struggling a bit','cd-vibe-val')">🟠  Rough — struggling a bit</div>
+            <div class="cd-option" onclick="cdSelect('cd-vibe','🔴  Bad — really hard week','cd-vibe-val')">🔴  Bad — really hard week</div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="nav-row">
@@ -380,11 +435,22 @@
           <div class="weighin-num">1</div>
           <div class="weighin-day-box">
             <div class="weighin-box-label">Day</div>
-            <select name="weight_1_day">
-              <option value="" disabled selected>—</option>
-              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-            </select>
+            <input type="hidden" name="weight_1_day" id="cd-w1-val">
+            <div class="cd-wrap compact" id="cd-w1">
+              <div class="cd-trigger placeholder" onclick="cdToggle('cd-w1')">
+                <span class="cd-display">—</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cd-options">
+              <div class="cd-option" onclick="cdSelect('cd-w1','Mon','cd-w1-val')">Mon</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Tue','cd-w1-val')">Tue</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Wed','cd-w1-val')">Wed</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Thu','cd-w1-val')">Thu</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Fri','cd-w1-val')">Fri</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Sat','cd-w1-val')">Sat</div>
+              <div class="cd-option" onclick="cdSelect('cd-w1','Sun','cd-w1-val')">Sun</div>
+              </div>
+            </div>
           </div>
           <div class="weighin-weight-box">
             <div class="weighin-box-label">Weight</div>
@@ -396,11 +462,22 @@
           <div class="weighin-num">2</div>
           <div class="weighin-day-box">
             <div class="weighin-box-label">Day</div>
-            <select name="weight_2_day">
-              <option value="" disabled selected>—</option>
-              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-            </select>
+            <input type="hidden" name="weight_2_day" id="cd-w2-val">
+            <div class="cd-wrap compact" id="cd-w2">
+              <div class="cd-trigger placeholder" onclick="cdToggle('cd-w2')">
+                <span class="cd-display">—</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cd-options">
+              <div class="cd-option" onclick="cdSelect('cd-w2','Mon','cd-w2-val')">Mon</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Tue','cd-w2-val')">Tue</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Wed','cd-w2-val')">Wed</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Thu','cd-w2-val')">Thu</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Fri','cd-w2-val')">Fri</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Sat','cd-w2-val')">Sat</div>
+              <div class="cd-option" onclick="cdSelect('cd-w2','Sun','cd-w2-val')">Sun</div>
+              </div>
+            </div>
           </div>
           <div class="weighin-weight-box">
             <div class="weighin-box-label">Weight</div>
@@ -412,11 +489,22 @@
           <div class="weighin-num">3</div>
           <div class="weighin-day-box">
             <div class="weighin-box-label">Day</div>
-            <select name="weight_3_day">
-              <option value="" disabled selected>—</option>
-              <option value="Mon">Mon</option><option value="Tue">Tue</option><option value="Wed">Wed</option>
-              <option value="Thu">Thu</option><option value="Fri">Fri</option><option value="Sat">Sat</option><option value="Sun">Sun</option>
-            </select>
+            <input type="hidden" name="weight_3_day" id="cd-w3-val">
+            <div class="cd-wrap compact" id="cd-w3">
+              <div class="cd-trigger placeholder" onclick="cdToggle('cd-w3')">
+                <span class="cd-display">—</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <div class="cd-options">
+              <div class="cd-option" onclick="cdSelect('cd-w3','Mon','cd-w3-val')">Mon</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Tue','cd-w3-val')">Tue</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Wed','cd-w3-val')">Wed</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Thu','cd-w3-val')">Thu</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Fri','cd-w3-val')">Fri</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Sat','cd-w3-val')">Sat</div>
+              <div class="cd-option" onclick="cdSelect('cd-w3','Sun','cd-w3-val')">Sun</div>
+              </div>
+            </div>
           </div>
           <div class="weighin-weight-box">
             <div class="weighin-box-label">Weight</div>
@@ -829,6 +917,47 @@
     }
   });
 
+
+  // ── CUSTOM DROPDOWN ──
+  function cdToggle(id) {
+    const wrap = document.getElementById(id);
+    const trigger = wrap.querySelector('.cd-trigger');
+    const options = wrap.querySelector('.cd-options');
+    const isOpen = options.classList.contains('open');
+    // Close all others
+    document.querySelectorAll('.cd-options.open').forEach(el => {
+      el.classList.remove('open');
+      el.closest('.cd-wrap').querySelector('.cd-trigger').classList.remove('open');
+    });
+    if (!isOpen) {
+      options.classList.add('open');
+      trigger.classList.add('open');
+    }
+  }
+
+  function cdSelect(wrapId, value, inputId) {
+    const wrap = document.getElementById(wrapId);
+    const trigger = wrap.querySelector('.cd-trigger');
+    const display = trigger.querySelector('.cd-display');
+    const options = wrap.querySelector('.cd-options');
+    display.textContent = value;
+    trigger.classList.remove('placeholder', 'open');
+    options.classList.remove('open');
+    wrap.querySelectorAll('.cd-option').forEach(o => {
+      o.classList.toggle('selected', o.textContent.trim() === value.trim());
+    });
+    document.getElementById(inputId).value = value;
+  }
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.cd-wrap')) {
+      document.querySelectorAll('.cd-options.open').forEach(el => {
+        el.classList.remove('open');
+        el.closest('.cd-wrap').querySelector('.cd-trigger').classList.remove('open');
+      });
+    }
+  });
   initWeek();
 </script>
 </body>
