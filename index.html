@@ -711,15 +711,17 @@
 
   function initWeek() {
     const now = new Date();
-    const day = now.getDay();
+    const day = now.getDay(); // 0 = Sunday
+    // Find the most recent Sunday (today if today is Sunday)
     const thisSun = new Date(now);
     thisSun.setDate(now.getDate() - day);
-    const lastSun = new Date(thisSun);
-    lastSun.setDate(thisSun.getDate() - 7);
+    // Next Sunday
+    const nextSun = new Date(thisSun);
+    nextSun.setDate(thisSun.getDate() + 7);
     const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    document.getElementById('week-label').textContent = `Week of ${fmt(lastSun)}`;
-    document.getElementById('week_of_hidden').value = `${fmt(lastSun)} – ${fmt(thisSun)}`;
-    document.getElementById('email-subject').value = `Weekly Check-In — ${fmt(lastSun)}`;
+    document.getElementById('week-label').textContent = `Week of ${fmt(thisSun)}`;
+    document.getElementById('week_of_hidden').value = `${fmt(thisSun)} – ${fmt(nextSun)}`;
+    document.getElementById('email-subject').value = `Weekly Check-In — ${fmt(thisSun)}`;
   }
 
   function updateProgress(to) {
