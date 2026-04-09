@@ -121,7 +121,7 @@
   .weighin-card {
     display: grid; grid-template-columns: 36px 1fr 1fr; align-items: stretch;
     background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+    border-radius: 12px; transition: border-color 0.2s;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
   .weighin-card:focus-within { border-color: var(--accent); }
@@ -204,13 +204,13 @@
   .hydration-text { font-size: 14px; color: var(--text-muted); transition: color 0.15s; font-weight: 400; }
   .hydration-opt.selected .hydration-text { color: var(--text); font-weight: 500; }
   /* DAY PILLS */
-  .day-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+  .day-pills { display: flex; gap: 5px; flex-wrap: nowrap; }
   .day-pill {
-    padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 20px;
+    flex: 1; padding: 8px 4px; border: 1.5px solid var(--border); border-radius: 20px;
     background: var(--surface); color: var(--text-muted);
-    font-family: 'DM Mono', monospace; font-size: 12px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
     cursor: pointer; transition: all 0.15s; user-select: none; font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
   }
   .day-pill.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
   /* DOSE SLIDER CARD */
@@ -312,7 +312,8 @@
   .cd-wrap.compact .cd-trigger.open { box-shadow: none; border-radius: 0; }
   .cd-wrap.compact .cd-options {
     border: 1.5px solid var(--accent); border-radius: 8px;
-    top: calc(100% + 4px); min-width: 100px;
+    top: calc(100% + 4px); min-width: 110px; z-index: 500;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.15);
   }
   .cd-wrap.compact .cd-option { padding: 10px 14px; font-size: 13px; }
 </style>
@@ -698,8 +699,8 @@
     </div>
 
     <div class="field-group">
-      <label class="field-label">Hunger &amp; Appetite Suppression — How well is the reta working?</label>
-      <span class="field-hint">1 = still very hungry, barely any suppression &nbsp;·&nbsp; 10 = appetite completely shut down</span>
+      <label class="field-label">Appetite Suppression</label>
+      <span class="field-hint">1 = still very hungry<br>10 = appetite completely shut down</span>
       <div class="rating-wrap">
         <div class="rating-track">
           <input type="range" name="reta_effectiveness" id="reta_eff_slider" min="1" max="10" value="6" oninput="updateRating('reta_eff_val', this.value)">
@@ -732,7 +733,7 @@
     <div class="section-header">
       <div class="section-eyebrow">Step 06 — Wellbeing</div>
       <h2 class="section-title">How you're actually feeling.</h2>
-      <p class="section-sub">Quick ratings, with space to add notes on anything worth mentioning.</p>
+      <p class="section-sub">Rate each area, with space to add notes if needed.</p>
     </div>
 
     <div class="slider-card">
