@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #060a0d;
+    --surface: #0d1318;
+    --surface2: #121a21;
+    --surface3: #18222c;
+    --border: #1a2530;
+    --border-light: #22303d;
+    --accent: #00d4a0;
+    --accent-dim: rgba(0,212,160,0.1);
+    --accent-glow: rgba(0,212,160,0.2);
+    --text: #e2ecf5;
+    --text-muted: #607a8a;
+    --text-dim: #334450;
+    --amber: #f5a623;
+    --red: #ff5068;
+    --blue: #4a9eff;
+    --purple: #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-weight: 300;
+    min-height: 100vh; overflow-x: hidden;
+  }
+
+  /* ── SETUP OVERLAY ── */
+  #setup-overlay {
+    position: fixed; inset: 0; background: var(--bg);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .setup-card {
+    max-width: 520px; width: 100%;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px;
+  }
+  .setup-eyebrow {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+  .setup-title {
+    font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 8px;
+  }
+  .setup-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 28px; }
+  .setup-sub a { color: var(--accent); text-decoration: none; }
+  .setup-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 13px 16px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 12px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 12px;
+  }
+  .setup-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .setup-input::placeholder { color: var(--text-dim); }
+  .setup-btn {
+    width: 100%; padding: 14px; background: var(--accent); color: var(--bg);
+    border: none; border-radius: 8px; font-family: 'DM Mono', monospace;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .setup-btn:hover { background: #00edb5; box-shadow: 0 4px 20px var(--accent-glow); }
+  .setup-steps {
+    margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .setup-step {
+    display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;
+  }
+  .setup-step-num {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--accent-dim);
+    border: 1px solid rgba(0,212,160,0.3); display: flex; align-items: center;
+    justify-content: center; font-family: 'DM Mono', monospace; font-size: 9px;
+    color: var(--accent); flex-shrink: 0; margin-top: 1px;
+  }
+  .setup-step-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .setup-step-text code {
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent);
+    background: var(--accent-dim); padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    border-bottom: 1px solid var(--border); padding: 20px 0;
+    background: rgba(6,10,13,0.95); backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .header-inner {
+    max-width: 1100px; margin: 0 auto; padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);} }
+  .header-title {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted);
+  }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .refresh-btn {
+    display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .last-updated {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-dim);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 28px; }
+
+  /* ── CLIENT TABS ── */
+  .client-tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+  .client-tab {
+    padding: 10px 20px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text-muted);
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 0.2s; user-select: none;
+  }
+  .client-tab:hover { border-color: var(--border-light); color: var(--text); }
+  .client-tab.active {
+    border-color: var(--accent); background: var(--accent-dim); color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-dim);
+  }
+
+  /* ── LOADING / EMPTY ── */
+  .state-msg {
+    text-align: center; padding: 80px 24px;
+    font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);} }
+  .stat-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text); line-height: 1;
+  }
+  .stat-value span { font-size: 14px; color: var(--text-muted); font-family: 'DM Mono', monospace; margin-left: 4px; }
+  .stat-delta {
+    margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 10px;
+  }
+  .stat-delta.up { color: var(--red); }
+  .stat-delta.down { color: var(--accent); }
+  .stat-delta.neutral { color: var(--text-dim); }
+
+  /* ── CHARTS ROW ── */
+  .charts-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .chart-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px;
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .chart-title {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-muted); margin-bottom: 18px;
+  }
+  .chart-wrap { position: relative; height: 200px; }
+
+  /* ── RATINGS ROW ── */
+  .ratings-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+  .rating-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+    animation: fadeUp 0.55s ease forwards;
+  }
+  .rating-card-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px;
+  }
+  .rating-big {
+    font-family: 'DM Serif Display', serif; font-size: 40px; color: var(--accent); line-height: 1;
+  }
+  .rating-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .mini-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+  .mini-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.6s ease; }
+
+  /* ── CHECK-IN HISTORY ── */
+  .section-title-row {
+    display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px;
+  }
+  .section-heading {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--text-muted);
+  }
+  .checkin-count {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-dim);
+  }
+  .checkins-list { display: flex; flex-direction: column; gap: 12px; }
+  .checkin-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; transition: border-color 0.2s;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .checkin-card:hover { border-color: var(--border-light); }
+  .checkin-header {
+    display: grid; grid-template-columns: 160px 1fr auto;
+    gap: 0; border-bottom: 1px solid var(--border); cursor: pointer;
+    padding: 16px 20px; align-items: center;
+  }
+  .checkin-week {
+    font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted);
+  }
+  .checkin-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .checkin-pill {
+    padding: 3px 10px; border-radius: 12px; font-family: 'DM Mono', monospace;
+    font-size: 10px; border: 1px solid var(--border);
+  }
+  .pill-weight { color: var(--text); border-color: var(--border-light); }
+  .pill-diet { color: var(--amber); border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.06); }
+  .pill-energy { color: var(--blue); border-color: rgba(74,158,255,0.3); background: rgba(74,158,255,0.06); }
+  .pill-mood { color: var(--purple); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.06); }
+  .pill-reta { color: var(--accent); border-color: rgba(0,212,160,0.3); background: rgba(0,212,160,0.06); }
+  .checkin-vibe { font-size: 13px; }
+  .checkin-expand-icon { color: var(--text-dim); transition: transform 0.2s; }
+  .checkin-card.open .checkin-expand-icon { transform: rotate(180deg); }
+  .checkin-body {
+    display: none; padding: 20px; border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .checkin-card.open .checkin-body { display: block; }
+  .detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .detail-section { }
+  .detail-label {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .detail-value { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .detail-value strong { color: var(--text); font-weight: 400; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .ratings-row { grid-template-columns: repeat(2,1fr); }
+    .detail-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .ratings-row { grid-template-columns: 1fr 1fr; }
+    .checkin-header { grid-template-columns: 1fr auto; }
+    .checkin-pills { display: none; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .main { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SETUP OVERLAY -->
+<div id="setup-overlay">
+  <div class="setup-card">
+    <div class="setup-eyebrow">One-time setup</div>
+    <h1 class="setup-title">Connect your data.</h1>
+    <p class="setup-sub">Paste your Google Sheet's published CSV link below. Once connected, this dashboard auto-loads all check-ins from your clients.</p>
+    <input class="setup-input" id="sheet-url-input" type="text" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?output=csv">
+    <button class="setup-btn" onclick="saveSheetUrl()">Connect Sheet →</button>
+
+    <div class="setup-steps">
+      <div class="setup-step">
+        <div class="setup-step-num">1</div>
+        <div class="setup-step-text">In Formspree → your form → <strong>Integrations</strong> → <strong>Google Sheets</strong> → connect. It auto-creates a sheet in your Google Drive.</div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-num">2</div>
+        <div class="setup-step-text">Open that Google Sheet → <strong>File → Share → Publish to web</strong> → select <code>Sheet1</code> → select <code>Comma-separated values (.csv)</code> → click <strong>Publish</strong></div>
+      </div>
+      <div class="setup-step">
+        <div class="setup-step-num">3</div>
+        <div class="setup-step-text">Copy the link it gives you and paste it above.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="header-dot"></div>
+      <span class="header-title">Client Dashboard</span>
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="last-updated">—</span>
+      <button class="refresh-btn" onclick="loadData()">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content" style="display:none">
+
+  <!-- CLIENT TABS -->
+  <div class="client-tabs" id="client-tabs">
+    <div class="client-tab active" onclick="selectClient('all')">All Clients</div>
+    <div class="client-tab" onclick="selectClient('Faisal Sehbai')">Faisal</div>
+    <div class="client-tab" onclick="selectClient('Jibran Shaikh')">Jibran</div>
+    <div class="client-tab" onclick="selectClient('Umair Mirza')">Umair</div>
+  </div>
+
+  <div id="dashboard-content">
+    <div class="state-msg" id="state-msg">Loading data…</div>
+  </div>
+
+</div>
+
+<script>
+const CLIENTS = ['all', 'Faisal Sehbai', 'Jibran Shaikh', 'Umair Mirza'];
+let allData = [];
+let currentClient = 'all';
+let weightChart = null;
+let ratingsChart = null;
+
+// ── STORAGE ──
+function saveSheetUrl() {
+  const url = document.getElementById('sheet-url-input').value.trim();
+  if (!url.includes('docs.google.com') && !url.includes('output=csv')) {
+    alert('That doesn\'t look like a valid Google Sheets CSV link. Please follow the steps above.');
+    return;
+  }
+  localStorage.setItem('dashboard_sheet_url', url);
+  document.getElementById('setup-overlay').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  loadData();
+}
+
+function getSheetUrl() {
+  return localStorage.getItem('dashboard_sheet_url');
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  const url = getSheetUrl();
+  if (url) {
+    document.getElementById('setup-overlay').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    loadData();
+  }
+});
+
+// ── LOAD DATA ──
+async function loadData() {
+  const url = getSheetUrl();
+  if (!url) return;
+  document.getElementById('state-msg') && (document.getElementById('state-msg').textContent = 'Loading…');
+
+  try {
+    const res = await fetch(url + '&t=' + Date.now());
+    const text = await res.text();
+    allData = parseCSV(text);
+    document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    renderDashboard();
+  } catch(e) {
+    document.getElementById('dashboard-content').innerHTML = '<div class="state-msg">Could not load data. Check your sheet URL and make sure it\'s published.</div>';
+  }
+}
+
+// ── CSV PARSER ──
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = parseCSVRow(lines[0]).map(h => h.trim().toLowerCase().replace(/\s+/g,'_'));
+  return lines.slice(1).map(line => {
+    const vals = parseCSVRow(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
+    return obj;
+  }).filter(r => r.name);
+}
+
+function parseCSVRow(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+// ── CLIENT SELECT ──
+function selectClient(client) {
+  currentClient = client;
+  document.querySelectorAll('.client-tab').forEach((tab, i) => {
+    tab.classList.toggle('active', CLIENTS[i] === client);
+  });
+  renderDashboard();
+}
+
+// ── FILTER DATA ──
+function getFiltered() {
+  if (currentClient === 'all') return allData;
+  return allData.filter(r => r.name === currentClient);
+}
+
+// ── RENDER ──
+function renderDashboard() {
+  const data = getFiltered();
+  const el = document.getElementById('dashboard-content');
+
+  if (!data.length) {
+    el.innerHTML = '<div class="state-msg">No check-ins yet for this client.</div>';
+    return;
+  }
+
+  // Sort by submission order (most recent last for charts, most recent first for list)
+  const sorted = [...data].reverse(); // newest first for list
+  const chronological = [...data];   // oldest first for charts
+
+  el.innerHTML = `
+    ${renderStats(sorted)}
+    ${renderCharts()}
+    ${renderRatings(sorted)}
+    ${renderHistory(sorted)}
+  `;
+
+  drawWeightChart(chronological);
+  drawRatingsChart(chronological);
+  attachToggle();
+}
+
+// ── STATS ──
+function renderStats(sorted) {
+  const latest = sorted[0];
+  const prev = sorted[1];
+
+  const avgWeight = r => {
+    const vals = [r.weight_1, r.weight_2, r.weight_3].map(Number).filter(v => v > 0);
+    return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+  };
+
+  const latestW = avgWeight(latest);
+  const prevW = prev ? avgWeight(prev) : null;
+  const weightDelta = (latestW && prevW) ? (latestW - prevW).toFixed(1) : null;
+  const deltaClass = weightDelta > 0 ? 'up' : weightDelta < 0 ? 'down' : 'neutral';
+  const deltaSign = weightDelta > 0 ? '+' : '';
+
+  const avgSleep = sorted.slice(0,4).map(r=>Number(r.avg_sleep)).filter(v=>v>0);
+  const avgSleepVal = avgSleep.length ? (avgSleep.reduce((a,b)=>a+b,0)/avgSleep.length).toFixed(1) : '—';
+
+  const avgSteps = sorted.slice(0,4).map(r=>Number(r.avg_steps)).filter(v=>v>0);
+  const avgStepsVal = avgSteps.length ? Math.round(avgSteps.reduce((a,b)=>a+b,0)/avgSteps.length).toLocaleString() : '—';
+
+  const totalCheckins = sorted.length;
+  const clientLabel = currentClient === 'all' ? `${totalCheckins} total` : `${totalCheckins} weeks`;
+
+  return `
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Latest Avg Weight</div>
+        <div class="stat-value">${latestW ? latestW.toFixed(1) : '—'}<span>lbs</span></div>
+        ${weightDelta !== null ? `<div class="stat-delta ${deltaClass}">${deltaSign}${weightDelta} lbs vs last week</div>` : '<div class="stat-delta neutral">First check-in</div>'}
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Sleep (4wk)</div>
+        <div class="stat-value">${avgSleepVal}<span>hrs</span></div>
+        <div class="stat-delta neutral">4-week rolling</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Steps (4wk)</div>
+        <div class="stat-value" style="font-size:24px">${avgStepsVal}</div>
+        <div class="stat-delta neutral">daily average</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Check-Ins Logged</div>
+        <div class="stat-value">${totalCheckins}</div>
+        <div class="stat-delta neutral">${clientLabel}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── CHARTS ──
+function renderCharts() {
+  return `
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Weight Trend (lbs)</div>
+        <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Weekly Ratings</div>
+        <div class="chart-wrap"><canvas id="ratingsChart"></canvas></div>
+      </div>
+    </div>
+  `;
+}
+
+function chartDefaults() {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: '#0d1318', borderColor: '#1a2530', borderWidth: 1,
+      titleColor: '#6a7f8e', bodyColor: '#e2ecf5',
+      titleFont: { family: 'DM Mono', size: 10 },
+      bodyFont: { family: 'DM Mono', size: 11 },
+      padding: 10, cornerRadius: 6,
+    }},
+    scales: {
+      x: { grid: { color: '#1a2530' }, ticks: { color: '#334450', font: { family: 'DM Mono', size: 9 }, maxRotation: 0 } },
+      y: { grid: { color: '#1a2530' }, ticks: { color: '#334450', font: { family: 'DM Mono', size: 9 } } }
+    }
+  };
+}
+
+function drawWeightChart(data) {
+  if (weightChart) { weightChart.destroy(); weightChart = null; }
+  const ctx = document.getElementById('weightChart');
+  if (!ctx) return;
+
+  const labels = data.map(r => r.week_of ? r.week_of.split('–')[0].trim() : '—');
+  const avgWeights = data.map(r => {
+    const vals = [r.weight_1, r.weight_2, r.weight_3].map(Number).filter(v=>v>0);
+    return vals.length ? +(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+  });
+
+  weightChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: avgWeights,
+        borderColor: '#00d4a0',
+        backgroundColor: 'rgba(0,212,160,0.06)',
+        borderWidth: 2,
+        pointBackgroundColor: '#00d4a0',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        fill: true,
+        tension: 0.3,
+        spanGaps: true,
+      }]
+    },
+    options: { ...chartDefaults(), plugins: { ...chartDefaults().plugins, tooltip: { ...chartDefaults().plugins.tooltip, callbacks: { label: ctx => ` ${ctx.parsed.y} lbs` } } } }
+  });
+}
+
+function drawRatingsChart(data) {
+  if (ratingsChart) { ratingsChart.destroy(); ratingsChart = null; }
+  const ctx = document.getElementById('ratingsChart');
+  if (!ctx) return;
+
+  const labels = data.map(r => r.week_of ? r.week_of.split('–')[0].trim() : '—');
+  const makeDataset = (key, color, label) => ({
+    label,
+    data: data.map(r => Number(r[key]) || null),
+    borderColor: color,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    pointBackgroundColor: color,
+    pointRadius: 3,
+    tension: 0.3,
+    spanGaps: true,
+  });
+
+  ratingsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        makeDataset('diet_rating', '#f5a623', 'Diet'),
+        makeDataset('energy_rating', '#4a9eff', 'Energy'),
+        makeDataset('mood_cognition_rating', '#a78bfa', 'Mood'),
+        makeDataset('reta_effectiveness', '#00d4a0', 'Reta'),
+      ]
+    },
+    options: {
+      ...chartDefaults(),
+      plugins: {
+        ...chartDefaults().plugins,
+        legend: {
+          display: true,
+          labels: { color: '#607a8a', font: { family: 'DM Mono', size: 9 }, boxWidth: 10, padding: 12 }
+        }
+      },
+      scales: { ...chartDefaults().scales, y: { ...chartDefaults().scales.y, min: 1, max: 10 } }
+    }
+  });
+}
+
+// ── RATINGS SUMMARY ──
+function renderRatings(sorted) {
+  const avg = (key, n=4) => {
+    const vals = sorted.slice(0,n).map(r=>Number(r[key])).filter(v=>v>0);
+    return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '—';
+  };
+
+  const card = (label, key, color) => {
+    const val = avg(key);
+    const pct = val !== '—' ? (val/10*100) : 0;
+    return `
+      <div class="rating-card">
+        <div class="rating-card-label">${label}</div>
+        <div class="rating-big" style="color:${color}">${val}</div>
+        <div class="rating-sub">4-week avg / 10</div>
+        <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="ratings-row">
+      ${card('Diet Quality', 'diet_rating', '#f5a623')}
+      ${card('Energy', 'energy_rating', '#4a9eff')}
+      ${card('Mood & Clarity', 'mood_cognition_rating', '#a78bfa')}
+      ${card('Reta Effectiveness', 'reta_effectiveness', '#00d4a0')}
+    </div>
+  `;
+}
+
+// ── HISTORY ──
+function renderHistory(sorted) {
+  const nameLabel = currentClient === 'all' ? '' : '';
+
+  const cards = sorted.map((r, i) => {
+    const avgW = [r.weight_1, r.weight_2, r.weight_3].map(Number).filter(v=>v>0);
+    const avgWVal = avgW.length ? (avgW.reduce((a,b)=>a+b,0)/avgW.length).toFixed(1) : null;
+    const nameTag = currentClient === 'all' ? `<span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-right:8px">${r.name?.split(' ')[0] || '—'}</span>` : '';
+
+    return `
+      <div class="checkin-card" id="card-${i}">
+        <div class="checkin-header" onclick="toggleCard(${i})">
+          <div class="checkin-week">${nameTag}${r.week_of || '—'}</div>
+          <div class="checkin-pills">
+            ${avgWVal ? `<span class="checkin-pill pill-weight">${avgWVal} lbs</span>` : ''}
+            ${r.diet_rating ? `<span class="checkin-pill pill-diet">Diet ${r.diet_rating}</span>` : ''}
+            ${r.energy_rating ? `<span class="checkin-pill pill-energy">Energy ${r.energy_rating}</span>` : ''}
+            ${r.mood_cognition_rating ? `<span class="checkin-pill pill-mood">Mood ${r.mood_cognition_rating}</span>` : ''}
+            ${r.reta_effectiveness ? `<span class="checkin-pill pill-reta">Reta ${r.reta_effectiveness}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${r.overall_vibe ? `<span class="checkin-vibe">${vibeEmoji(r.overall_vibe)}</span>` : ''}
+            <svg class="checkin-expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="checkin-body">
+          <div class="detail-grid">
+            <div class="detail-section">
+              <div class="detail-label">Weight</div>
+              <div class="detail-value">
+                ${r.weight_1 ? `<strong>${r.weight_1}</strong> / ` : ''}${r.weight_2 ? `<strong>${r.weight_2}</strong> / ` : ''}${r.weight_3 ? `<strong>${r.weight_3}</strong> lbs` : '—'}
+              </div>
+              ${r.body_notes ? `<div class="detail-value" style="margin-top:6px">${r.body_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Training</div>
+              <div class="detail-value"><strong>${r.gym_sessions ?? '—'}</strong> sessions</div>
+              ${r.training_notes ? `<div class="detail-value" style="margin-top:6px">${r.training_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Sleep & Steps</div>
+              <div class="detail-value"><strong>${r.avg_sleep || '—'}</strong> hrs sleep · <strong>${r.avg_steps ? Number(r.avg_steps).toLocaleString() : '—'}</strong> steps</div>
+              ${r.sleep_notes ? `<div class="detail-value" style="margin-top:6px">${r.sleep_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Diet</div>
+              <div class="detail-value">Rated <strong>${r.diet_rating || '—'}/10</strong></div>
+              ${r.diet_notes ? `<div class="detail-value" style="margin-top:6px">${r.diet_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Hydration</div>
+              <div class="detail-value">${r.hydration_rating || '—'}</div>
+              ${r.hydration_notes ? `<div class="detail-value" style="margin-top:6px">${r.hydration_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Retatrutide</div>
+              <div class="detail-value">
+                ${r.reta_weekly_dose ? `<strong>${r.reta_weekly_dose}mg</strong> ` : ''}${r.reta_injection_days ? `· pinned ${r.reta_injection_days}` : ''}
+              </div>
+              ${r.reta_notes ? `<div class="detail-value" style="margin-top:6px">${r.reta_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Energy</div>
+              <div class="detail-value">Rated <strong>${r.energy_rating || '—'}/10</strong></div>
+              ${r.energy_notes ? `<div class="detail-value" style="margin-top:6px">${r.energy_notes}</div>` : ''}
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Mood & Clarity</div>
+              <div class="detail-value">Rated <strong>${r.mood_cognition_rating || '—'}/10</strong></div>
+              ${r.mood_cognition_notes ? `<div class="detail-value" style="margin-top:6px">${r.mood_cognition_notes}</div>` : ''}
+            </div>
+            ${r.side_effects || r.next_week_goals ? `
+            <div class="detail-section">
+              ${r.side_effects ? `<div class="detail-label">Side Effects</div><div class="detail-value" style="margin-bottom:10px">${r.side_effects}</div>` : ''}
+              ${r.next_week_goals ? `<div class="detail-label">Next Week Goals</div><div class="detail-value">${r.next_week_goals}</div>` : ''}
+            </div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="section-title-row">
+      <span class="section-heading">Check-In History</span>
+      <span class="checkin-count">${sorted.length} submissions</span>
+    </div>
+    <div class="checkins-list">${cards}</div>
+  `;
+}
+
+function vibeEmoji(vibe) {
+  if (vibe.includes('Great')) return '🟢';
+  if (vibe.includes('Good')) return '🔵';
+  if (vibe.includes('Average')) return '🟡';
+  if (vibe.includes('Rough')) return '🟠';
+  if (vibe.includes('Bad')) return '🔴';
+  return '';
+}
+
+function toggleCard(i) {
+  document.getElementById(`card-${i}`).classList.toggle('open');
+}
+
+function attachToggle() {} // cards use inline onclick
+</script>
+</body>
+</html>
